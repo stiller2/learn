@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Header } from "./components/Header";
+import { SessionCard } from "./components/SessionCard";
 import { PARTS, getTotalMinutes, sessions } from "./data/course";
 
 const ROMAN = ["I", "II", "III", "IV"];
@@ -57,26 +57,12 @@ export default function Home() {
 
                 <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {partSessions.map((session) => (
-                    <Link
+                    <SessionCard
                       key={session.number}
-                      href={`/session/${session.number}`}
-                      className="group flex flex-col rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/40 hover:bg-zinc-900 hover:shadow-lg hover:shadow-amber-500/[0.03]"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-xs text-zinc-600 group-hover:text-amber-400/80">
-                          {String(session.number).padStart(2, "0")}
-                        </span>
-                        <span className="text-zinc-600 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-amber-400 group-hover:opacity-100">
-                          →
-                        </span>
-                      </div>
-                      <div className="mt-3 text-base font-medium text-zinc-100 transition-colors group-hover:text-amber-50">
-                        {session.title}
-                      </div>
-                      <div className="mt-auto pt-4 text-sm text-zinc-500">
-                        {session.timeEstimate}
-                      </div>
-                    </Link>
+                      number={session.number}
+                      title={session.title}
+                      timeEstimate={session.timeEstimate}
+                    />
                   ))}
                 </div>
               </section>

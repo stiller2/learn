@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { CompleteToggle } from "../../components/CompleteToggle";
 import { Header } from "../../components/Header";
 import { PARTS, getSession, sessions } from "../../data/course";
 
@@ -40,12 +41,15 @@ export default async function SessionPage({
           <span className="text-zinc-700">·</span>
           <span className="text-zinc-500">{session.timeEstimate}</span>
         </div>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
-          <span className="text-zinc-600">
-            {String(session.number).padStart(2, "0")}
-          </span>{" "}
-          {session.title}
-        </h1>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+            <span className="text-zinc-600">
+              {String(session.number).padStart(2, "0")}
+            </span>{" "}
+            {session.title}
+          </h1>
+          <CompleteToggle sessionNumber={session.number} />
+        </div>
 
         <section className="mt-14">
           <SectionLabel>Why this matters</SectionLabel>
@@ -94,9 +98,27 @@ export default async function SessionPage({
 
         <section className="mt-14">
           <SectionLabel>Do</SectionLabel>
-          <p className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/30 p-5 font-serif text-lg leading-8 text-zinc-300">
-            {session.doDescription}
-          </p>
+          <div className="mt-4 flex flex-col gap-4 rounded-lg border border-zinc-800 bg-zinc-900/30 p-5">
+            {session.doBlocks.map((block, i) =>
+              block.type === "code" ? (
+                <div key={i}>
+                  <div className="mb-1.5 text-xs font-medium tracking-wide text-zinc-600 uppercase">
+                    {block.language}
+                  </div>
+                  <pre className="overflow-x-auto rounded-md border border-zinc-800 bg-black/40 p-4 font-mono text-sm leading-6 text-amber-100/90">
+                    <code>{block.content}</code>
+                  </pre>
+                </div>
+              ) : (
+                <p
+                  key={i}
+                  className="font-serif text-lg leading-8 whitespace-pre-line text-zinc-300"
+                >
+                  {block.content}
+                </p>
+              ),
+            )}
+          </div>
         </section>
 
         <section className="mt-14">

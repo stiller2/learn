@@ -8,6 +8,10 @@ export type GlossaryTerm = {
   definition: string;
 };
 
+export type DoBlock =
+  | { type: "text"; content: string }
+  | { type: "code"; language: string; content: string };
+
 export type Session = {
   number: number;
   part: number;
@@ -16,7 +20,7 @@ export type Session = {
   whyItMatters: string;
   objectives: string[];
   resources: Resource[];
-  doDescription: string;
+  doBlocks: DoBlock[];
   glossary: GlossaryTerm[];
   doneWhen: string;
 };
@@ -69,8 +73,23 @@ export const sessions: Session[] = [
         url: "https://hpbn.co/",
       },
     ],
-    doDescription:
-      'Ask Claude: "Walk me through exactly what happens when I type doordash.com into Chrome and load the homepage. Cover DNS, browser, server, frontend, backend, database, APIs, and HTTP at the level of a startup founder." Then close it and draw the whole chain on paper from memory, then explain it out loud to nobody — the drawing and the explaining are the session, the reading is just input. Second thing: open any website, open Chrome DevTools (Cmd+Option+I), click the Network tab, and reload. You\'re now watching dozens of real HTTP requests. Click one and look at the method, the status, and the headers — you don\'t need to understand it yet, you need to know this panel exists, because Session 15 lives here. Deliberately skip HTTP/2, HTTP/3, proxies, TCP internals, and TLS handshakes for now — all real, all irrelevant to you at this stage.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          'Ask Claude: "Walk me through exactly what happens when I type doordash.com into Chrome and load the homepage. Cover DNS, browser, server, frontend, backend, database, APIs, and HTTP at the level of a startup founder."',
+      },
+      {
+        type: "text",
+        content:
+          "Then close it and draw the whole chain on paper from memory. Then explain it out loud to nobody. The drawing and the explaining are the session — the reading is just input.",
+      },
+      {
+        type: "text",
+        content:
+          "Second thing: open any website, open Chrome DevTools (Cmd+Option+I), click the Network tab, and reload. You're now watching dozens of real HTTP requests. Click one. Look at the method, the status, the headers. You don't need to understand it yet — you need to know this panel exists, because Session 15 lives here.",
+      },
+    ],
     glossary: [
       { term: "Client", definition: "Whatever is making the request. Usually a browser." },
       { term: "Server", definition: "A computer that receives requests and returns responses." },
@@ -125,8 +144,35 @@ export const sessions: Session[] = [
       },
       { title: "Postman", url: "https://www.postman.com/" },
     ],
-    doDescription:
-      'Ask Claude Code: "Create a small script that calls a free public API, prints the status code, and prints the returned JSON. Under 30 lines. Explain every line before I run it." Run it. Then break it on purpose, one thing at a time: wrong endpoint, missing parameter, malformed URL. Note what each failure looks like — you\'re building a library of failure shapes that\'ll pay off in Session 15. Then ask: "Show me exactly which part of this is the HTTP request and which part is the response." The picture to internalize: your program sends GET https://api.example.com/company/123 to the API server, which sends back { "id": 123, "name": "Acme" }. An API is not magic — it is software sending structured requests to other software and getting structured answers back.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          'Ask Claude Code: "Create a small script that calls a free public API, prints the status code, and prints the returned JSON. Under 30 lines. Explain every line before I run it."',
+      },
+      {
+        type: "text",
+        content:
+          "Run it. Then break it on purpose, one thing at a time: wrong endpoint, missing parameter, malformed URL. Note what each failure looks like — you're building a library of failure shapes that'll pay off in Session 15.",
+      },
+      {
+        type: "text",
+        content:
+          'Then ask: "Show me exactly which part of this is the HTTP request and which part is the response."',
+      },
+      { type: "text", content: "The picture to internalize:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          'Your program\n  ↓\nGET https://api.example.com/company/123\n  ↓\nAPI server\n  ↓\n{ "id": 123, "name": "Acme" }',
+      },
+      {
+        type: "text",
+        content:
+          "An API is not magic. It is software sending structured requests to other software and getting structured answers back.",
+      },
+    ],
     glossary: [
       { term: "API", definition: "A defined way for one piece of software to ask another for something." },
       { term: "REST API", definition: "The dominant convention: structure your API around URLs and HTTP methods." },
@@ -167,8 +213,29 @@ export const sessions: Session[] = [
       { title: "Mode SQL Tutorial — Basic", url: "https://mode.com/sql-tutorial/" },
       { title: "Select Star SQL", url: "https://selectstarsql.com/" },
     ],
-    doDescription:
-      'A database is a set of tables. Tables have rows and columns, and tables point at each other using IDs — a USERS table (id, name, email) and a COMPANIES table (id, user_id, name), where a company\'s user_id points at the row it belongs to in users. That one idea, a column in one table pointing at a row in another, is most of what "relational database" means. Work through SQLBolt lessons 1 through 6 — interactive, instant feedback, no setup — then read PostgreSQL\'s "The SQL Language" sections 2.2 through 2.5: concepts, creating a table, populating it, querying it.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "A database is a set of tables. Tables have rows and columns. Tables point at each other using IDs.",
+      },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "USERS\nid | name | email\n-----------------------\n1  | Bob  | bob@x.com\n2  | Sue  | sue@x.com\n\nCOMPANIES\nid | user_id | name\n-----------------------\n1  | 2       | Stripe\n2  | 2       | OpenAI\n3  | 1       | Airbnb",
+      },
+      {
+        type: "text",
+        content:
+          'user_id is what connects them. That one idea — a column in one table pointing at a row in another — is most of what "relational database" means.',
+      },
+      {
+        type: "text",
+        content:
+          'Work through SQLBolt lessons 1 through 6 — interactive, instant feedback, no setup. Do these first. Then read PostgreSQL\'s "The SQL Language" sections 2.2 through 2.5: concepts, creating a table, populating it, querying it.',
+      },
+    ],
     glossary: [
       { term: "Database", definition: "Organized, persistent storage." },
       { term: "Relational database", definition: "One organized as tables that reference each other." },
@@ -216,8 +283,35 @@ export const sessions: Session[] = [
         url: "https://www.postgresql.org/docs/current/using-explain.html",
       },
     ],
-    doDescription:
-      "Work through SQLBolt lessons 6 through 13 — joins, NULLs, aggregates, order of execution — plus PostgreSQL tutorial sections 2.6 (joins) and 2.7 (aggregates). Then write these two cold, from memory: SELECT * FROM companies WHERE industry = 'AI'; and SELECT users.name, COUNT(companies.id) FROM users JOIN companies ON users.id = companies.user_id GROUP BY users.name;. Then design the CRM schema yourself, on paper, before consulting anything — three tables: users, companies, notes. Write down every column and every foreign key. Then answer: how would you retrieve every note belonging to Stripe? Write the SQL first, then check it.",
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Work through SQLBolt lessons 6 through 13: joins, NULLs, aggregates, order of execution. Read PostgreSQL tutorial sections 2.6 (joins) and 2.7 (aggregates). Mode SQL Tutorial — Intermediate has the clearest free explanation of GROUP BY and joins available anywhere.",
+      },
+      { type: "text", content: "The two queries to write cold:" },
+      {
+        type: "code",
+        language: "sql",
+        content: "SELECT *\nFROM companies\nWHERE industry = 'AI';",
+      },
+      {
+        type: "code",
+        language: "sql",
+        content:
+          "SELECT users.name, COUNT(companies.id)\nFROM users\nJOIN companies ON users.id = companies.user_id\nGROUP BY users.name;",
+      },
+      {
+        type: "text",
+        content:
+          "Exercise: design the CRM schema yourself, on paper, before consulting anything. Three tables: users, companies, notes. Write down every column and every foreign key.",
+      },
+      {
+        type: "text",
+        content:
+          "Then answer: how would you retrieve every note belonging to Stripe? Write the SQL first. Then check it.",
+      },
+    ],
     glossary: [
       { term: "JOIN", definition: "Combine rows from two tables using a shared key." },
       { term: "INNER JOIN", definition: "Only rows with a match in both tables." },
@@ -269,8 +363,30 @@ export const sessions: Session[] = [
       { title: "Learn Git Branching", url: "https://learngitbranching.js.org/" },
       { title: "Pro Git", url: "https://git-scm.com/book/en/v2" },
     ],
-    doDescription:
-      "The commands worth having: pwd, ls, cd, mkdir for moving around; git status and git diff for what has changed; git add, git commit, git push to save and share; git pull to get others' changes; git branch and git checkout for parallel work; git log for history. In a scratch repo: branch off main, change a file, commit, push, open a PR against main, and merge it. Then create a merge conflict on purpose — edit the same line on two branches and merge them — and resolve it. The conflict is the point: it looks alarming until you've done it once, at which point it's a five-minute annoyance forever after.",
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Read and do: work through the GitHub — Hello World tutorial, actually doing it. Read GitHub Flow once — this is the collaboration model.",
+      },
+      { type: "text", content: "Commands worth having:" },
+      {
+        type: "code",
+        language: "shell",
+        content:
+          "pwd   ls   cd   mkdir             # moving around\ngit status   git diff            # what has changed\ngit add   git commit   git push  # save and share\ngit pull                         # get others' changes\ngit branch   git checkout        # parallel work\ngit log                          # history",
+      },
+      {
+        type: "text",
+        content:
+          "Exercise: in a scratch repo, branch off main, change a file, commit, push, open a PR against main, merge it.",
+      },
+      {
+        type: "text",
+        content:
+          "Then create a merge conflict on purpose — edit the same line on two branches and merge them. Resolve it. The conflict is the point. It looks alarming until you've done it once, at which point it's a five-minute annoyance forever after.",
+      },
+    ],
     glossary: [
       { term: "Repository", definition: "A project tracked by git." },
       { term: "Commit", definition: "A saved snapshot, with a message." },
@@ -334,8 +450,40 @@ export const sessions: Session[] = [
       },
       { title: "Tailwind CSS docs", url: "https://tailwindcss.com/docs" },
     ],
-    doDescription:
-      'The framing: HTML is structure, CSS is appearance, JavaScript is behavior, React is building interfaces out of reusable components, and Next.js is a framework around React that adds routing, server code, and builds. Do not try to learn React properly here — recognition, not mastery. Build three pages with zero styling effort: / as a dashboard, /companies as a list of companies, /companies/new as an add-company form. Tell Claude Code: "Keep this extremely simple. I care about architecture, not visual polish." Then spend a real 15 minutes asking it: "Explain this application file by file, starting with what matters most, and skip config unless it\'s important," and "When I load /companies, exactly which code produces what I see?" This inspection step is more valuable than the building step — the building is fast, understanding what got built is the skill.',
+    doBlocks: [
+      { type: "text", content: "The framing:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "HTML       = structure\nCSS        = appearance\nJavaScript = behavior\nReact      = building interfaces out of reusable components\nNext.js    = a framework around React adding routing, server code, and builds",
+      },
+      {
+        type: "text",
+        content: "Do not try to learn React properly here. Recognition, not mastery.",
+      },
+      { type: "text", content: "Build three pages, zero styling effort:" },
+      {
+        type: "code",
+        language: "text",
+        content: "/               dashboard\n/companies      list of companies\n/companies/new  add-company form",
+      },
+      {
+        type: "text",
+        content:
+          'Tell Claude Code: "Keep this extremely simple. I care about architecture, not visual polish."',
+      },
+      {
+        type: "text",
+        content:
+          'Then inspect: spend a real 15 minutes asking, "Explain this application file by file. Start with what matters most and skip config unless it\'s important," and "When I load /companies, exactly which code produces what I see?"',
+      },
+      {
+        type: "text",
+        content:
+          "This inspection step is more valuable than the building step. The building is fast; understanding what got built is the skill.",
+      },
+    ],
     glossary: [
       { term: "Component", definition: "A reusable piece of interface, written as a function." },
       { term: "Props", definition: "Data passed into a component from outside." },
@@ -404,8 +552,26 @@ export const sessions: Session[] = [
         url: "https://developer.chrome.com/docs/devtools",
       },
     ],
-    doDescription:
-      'Build one endpoint, no database yet — POST /api/companies takes in { "name": "Stripe" } and returns { "success": true, "company": "Stripe" }. Wire your add-company form to it. Then, the exercise that matters most: open Chrome DevTools\' Network tab, submit the form, click your request, and find the method, the URL, the status code, the request payload, and the response body. You are now watching frontend → HTTP → backend → HTTP → frontend. Spend twenty minutes here, clicking through requests and changing the form input to watch the payload change — this panel is where you\'ll spend most of Session 15, and where most real debugging starts.',
+    doBlocks: [
+      { type: "text", content: "Build one endpoint, no database yet:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          'POST /api/companies\n\nin:  { "name": "Stripe" }\nout: { "success": true, "company": "Stripe" }',
+      },
+      { type: "text", content: "Wire your add-company form to it." },
+      {
+        type: "text",
+        content:
+          "The exercise that matters most here: open Chrome DevTools → Network tab. Submit the form. Click your request. Find:\nthe method\nthe URL\nthe status code\nthe request payload\nthe response body",
+      },
+      {
+        type: "text",
+        content:
+          "You are now watching frontend → HTTP → backend → HTTP → frontend. Spend twenty minutes here. Click through requests. Change the form input and watch the payload change. This panel is where you'll spend most of Session 15, and where most real debugging starts.",
+      },
+    ],
     glossary: [
       {
         term: "Route handler / API route",
@@ -462,8 +628,33 @@ export const sessions: Session[] = [
       { title: "Supabase — Realtime", url: "https://supabase.com/docs/guides/realtime" },
       { title: "The Twelve-Factor App", url: "https://12factor.net/" },
     ],
-    doDescription:
-      "Create the tables you designed in Session 4: companies (id, name, user_id, created_at) and notes (id, company_id, content, created_at). Then wire both directions — Add Company goes POST → backend → Supabase → INSERT, and the Companies page goes backend → Supabase → SELECT → display. The test that makes it real: add a company, close the browser, stop the dev server entirely, restart everything — it's still there. That's persistence, obvious in the abstract and different when you watch it. Then open the Supabase SQL editor and run the queries from Session 4 against your own data: join companies and notes, count notes per company. This is the moment SQL becomes a tool rather than a subject.",
+    doBlocks: [
+      { type: "text", content: "Create the tables you designed in Session 4:" },
+      {
+        type: "code",
+        language: "text",
+        content: "companies:  id, name, user_id, created_at\nnotes:      id, company_id, content, created_at",
+      },
+      { type: "text", content: "Then wire both directions:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "Add Company     → POST → backend → Supabase → INSERT\nCompanies page  →        backend → Supabase → SELECT → display",
+      },
+      {
+        type: "text",
+        content:
+          "The test that makes it real: add a company. Close the browser. Stop the dev server entirely. Restart everything.",
+      },
+      { type: "text", content: "It's still there." },
+      { type: "text", content: "That's persistence. Obvious in the abstract, different when you watch it." },
+      {
+        type: "text",
+        content:
+          "Then use your SQL: open the Supabase SQL editor and run the queries from Session 4 against your own data. Join companies and notes. Count notes per company. This is the moment SQL becomes a tool rather than a subject.",
+      },
+    ],
     glossary: [
       { term: "ORM / query builder", definition: "A library that writes SQL for you from code." },
       {
@@ -520,8 +711,18 @@ export const sessions: Session[] = [
       },
       { title: "Have I Been Pwned", url: "https://haveibeenpwned.com/" },
     ],
-    doDescription:
-      'Build signup, login, and logout. Then make companies belong to users — and verify a second account genuinely cannot see the first account\'s data. Actually test it with two accounts; assumptions here are how breaches happen. Ask Claude: "Walk me through everything that happens technically when I enter my email and password and click Login. Where does the user\'s identity live on subsequent requests? Explain cookies, sessions, JWTs, authentication, and authorization at the depth a founder needs — not more."',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Build signup, login, logout. Then make companies belong to users — and verify a second account genuinely cannot see the first account's data. Actually test it with two accounts. Assumptions here are how breaches happen.",
+      },
+      {
+        type: "text",
+        content:
+          'Ask Claude: "Walk me through everything that happens technically when I enter my email and password and click Login. Where does the user\'s identity live on subsequent requests? Explain cookies, sessions, JWTs, authentication, and authorization at the depth a founder needs — not more."',
+      },
+    ],
     glossary: [
       { term: "Authentication", definition: "Proving who you are." },
       { term: "Authorization", definition: "What you're permitted to do once you're in." },
@@ -589,8 +790,37 @@ export const sessions: Session[] = [
         url: "https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning",
       },
     ],
-    doDescription:
-      "Connect GitHub to Vercel and deploy. Internalize the chain: your laptop → git push → GitHub → Vercel builds → a public URL, noting that GitHub is the middleman and Vercel never talks to your machine directly. The part that actually matters: your database password and API keys must never appear in your source code, because your source code is on GitHub and your frontend code is downloadable by every visitor to your site. The browser is user-controlled, fully inspectable, and never trusted with secrets; the server is your environment, where secrets can live. If you take one security idea from this course, take this one. Then send the URL to someone, have them sign up and add a company and a note, and find the row they created in your Supabase dashboard. Separately, open your deployed site, open DevTools → Sources, and look at what JavaScript the browser actually downloaded — everything there is public, which is why the boundary matters.",
+    doBlocks: [
+      { type: "text", content: "Connect GitHub → Vercel → deploy. Then internalize the chain:" },
+      {
+        type: "code",
+        language: "text",
+        content: "Your laptop → git push → GitHub → Vercel builds → public URL",
+      },
+      { type: "text", content: "Note that GitHub is the middleman. Vercel never talks to your machine." },
+      {
+        type: "text",
+        content:
+          "The part that actually matters: your database password and API keys must never appear in your source code, because your source code is on GitHub and your frontend code is downloadable by every visitor to your site.",
+      },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "Browser = user-controlled, fully inspectable, never trusted with secrets\nServer  = your environment, where secrets can live",
+      },
+      { type: "text", content: "If you take one security idea from this course, take this one." },
+      {
+        type: "text",
+        content:
+          "Exercise: send the URL to someone. Have them sign up, add a company, add a note. Then find the row they created in your Supabase dashboard.",
+      },
+      {
+        type: "text",
+        content:
+          "Then, separately: open your deployed site, open DevTools → Sources, and look at what JavaScript the browser actually downloaded. Everything there is public. That's why the boundary matters.",
+      },
+    ],
     glossary: [
       {
         term: "Environment variable",
@@ -649,8 +879,48 @@ export const sessions: Session[] = [
         url: "https://www.youtube.com/watch?v=zjkBMFhNj_g",
       },
     ],
-    doDescription:
-      'Models don\'t read words, they read tokens — chunks of roughly ¾ of a word in English — and everything is priced and limited in tokens: what you send and what comes back. A context window is how much the model can hold in mind at once, measured in tokens; everything it "knows" about your situation has to fit, and exceeding it means something gets dropped. Training is the expensive one-time process that produced the model; inference is running it to get an answer, which is what you pay for per call; fine-tuning is additional training on your own data, and it\'s usually the wrong solution. Input tokens are cheaper than output tokens, bigger models cost more and respond slower, and a hallucination is fluent, confident, wrong output that the model has no internal signal to distinguish from correct output — which is why evals exist. Open the tokenizer and paste in a paragraph of your own writing, then a table of numbers, then a code snippet, and notice how differently they tokenize. Then take a product you know and estimate how many tokens per user action it costs, what that would cost at 10,000 users a day, and look up current pricing to actually do the arithmetic — this is the calculation nobody does and everyone should.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Tokens. Models don't read words; they read tokens — chunks of roughly ¾ of a word in English. Everything is priced and limited in tokens: what you send, what comes back. A 10-page document is roughly 5,000 tokens. This is the unit of both cost and capacity.",
+      },
+      {
+        type: "text",
+        content:
+          'Context window. How much the model can hold in mind at once, measured in tokens. Everything the model "knows" about your specific situation has to fit — the system prompt, conversation history, retrieved documents, the question. Exceed it and something gets dropped.',
+      },
+      {
+        type: "text",
+        content:
+          "Training vs inference. Training is the enormously expensive one-time process that produced the model. Inference is running it to get an answer, which is what you pay for per call. Fine-tuning is additional training on your own data — usually the wrong solution, and worth knowing that so you can question it when someone proposes it.",
+      },
+      {
+        type: "text",
+        content:
+          'Cost and latency. Input tokens are cheaper than output tokens. Bigger models cost more and respond slower. A product that sends 50,000 tokens per request behaves very differently, economically, from one that sends 500. When someone pitches an AI product, "how many tokens per user action?" is a sharp question.',
+      },
+      {
+        type: "text",
+        content:
+          'Hallucination. The model produces fluent, confident, wrong output. It has no internal signal distinguishing this from correct output — which is why "the AI will just check its work" isn\'t a plan, and why evals exist.',
+      },
+      {
+        type: "text",
+        content:
+          "Non-determinism. The same input can produce different output. This breaks most conventional software assumptions and is the reason testing AI features is a genuinely hard problem.",
+      },
+      {
+        type: "text",
+        content:
+          "Do: open the tokenizer. Paste in a paragraph of your own writing, then a table of numbers, then a code snippet. Notice how differently they tokenize.",
+      },
+      {
+        type: "text",
+        content:
+          "Then take a product you know and estimate: how many tokens per user action? What would that cost at 10,000 users a day? Look up current pricing and actually do the arithmetic. This is the calculation nobody does and everyone should.",
+      },
+    ],
     glossary: [
       { term: "Token", definition: "The unit models read and write. Roughly ¾ of a word." },
       { term: "Context window", definition: "How many tokens the model can consider at once." },
@@ -709,8 +979,35 @@ export const sessions: Session[] = [
         url: "https://docs.claude.com/en/docs/build-with-claude/streaming",
       },
     ],
-    doDescription:
-      'Build an "Analyze Company" button: a click posts to /api/analyze, the backend fetches that company\'s notes from Postgres, sends them to the model with a prompt, returns the response, and you display it. Notice that the backend is assembling context from your database and constructing a prompt in code — that\'s most of what "AI engineering" is in practice. Sit with the question: why can\'t the browser call the model API directly with your key? Because anything in the browser is visible to the user, and an exposed API key is someone else\'s free compute on your credit card that will be found within hours — the backend exists partly because it\'s the only place a secret can live. Also handle what the user sees while waiting, since model calls take seconds rather than milliseconds; what happens if the call fails or times out; and what happens if the model returns something unusable. Those three questions are most of the difference between a demo and a product.',
+    doBlocks: [
+      { type: "text", content: 'Build an "Analyze Company" button:' },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "Click\n  ↓\nPOST /api/analyze\n  ↓\nbackend fetches that company's notes from Postgres\n  ↓\nsends them to the model with a prompt\n  ↓\nreturns the response\n  ↓\ndisplay it",
+      },
+      {
+        type: "text",
+        content:
+          'Notice what the backend is doing: assembling context from your database and constructing a prompt in code. That\'s most of what "AI engineering" is in practice.',
+      },
+      {
+        type: "text",
+        content:
+          "The conceptual question to sit with: why can't the browser call the model API directly with your key?",
+      },
+      {
+        type: "text",
+        content:
+          "Because anything in the browser is visible to the user. An exposed API key is someone else's free compute on your credit card, and it will be found within hours. The backend exists partly because it's the only place a secret can live.",
+      },
+      {
+        type: "text",
+        content:
+          "Also handle:\nWhat does the user see while waiting? Model calls take seconds, not milliseconds.\nWhat happens if the call fails or times out?\nWhat happens if the model returns something unusable?\n\nThese three questions are most of the difference between a demo and a product.",
+      },
+    ],
     glossary: [
       {
         term: "API key",
@@ -773,8 +1070,51 @@ export const sessions: Session[] = [
         url: "https://hamel.dev/blog/posts/evals/",
       },
     ],
-    doDescription:
-      'Part 1, structured output: instead of a paragraph of prose, constrain the model to return exactly { "summary": "...", "strengths": ["..."], "risks": ["..."], "score": 8 } and store it in your database — prose can\'t be stored usefully, sorted, filtered, aggregated, or displayed in a table, and structured data can, which is most of what separates an AI feature from an AI demo. Part 2, tool calling: a user asks a question, the model determines it needs data it doesn\'t have, the model emits a tool call like get_company_notes(id), your code runs the actual query, the result goes back to the model, and the model answers using it — the model never touches your database, it requests and your code decides whether and how to comply, which is the whole security model of agentic systems. Implement exactly one tool, don\'t build a multi-agent system, and watch the sequence and log every step until you understand it. Part 3, evals: conventional software gives the same output for the same input, so you write tests; AI gives different output for the same input, so you use evals instead — a set of cases with graded outputs, run repeatedly, tracked over time. Every serious AI company has an eval system and most consider it their real moat.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Part 1 — Structured output. Instead of a paragraph of prose, constrain the model to return exactly this:",
+      },
+      {
+        type: "code",
+        language: "json",
+        content:
+          '{\n  "summary": "...",\n  "strengths": ["...", "..."],\n  "risks": ["...", "..."],\n  "score": 8\n}',
+      },
+      {
+        type: "text",
+        content:
+          "Then store it in your database. Why this is the key idea: prose can't be stored usefully, sorted, filtered, aggregated, or displayed in a table. Structured data can. This is most of what separates an AI feature from an AI demo — the demo produces impressive text, the feature produces data your product can actually use.",
+      },
+      { type: "text", content: "Part 2 — Tool calling." },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "User asks a question\n  ↓\nModel determines it needs data it doesn't have\n  ↓\nModel emits a tool call: get_company_notes(id)\n  ↓\nYOUR code runs the actual query\n  ↓\nResult goes back to the model\n  ↓\nModel answers using it",
+      },
+      {
+        type: "text",
+        content:
+          "The model never touches your database. It requests; your code decides whether and how to comply. That distinction is the whole security model of agentic systems, and it's worth being crisp about.",
+      },
+      {
+        type: "text",
+        content:
+          "Implement exactly one tool. Don't build a multi-agent system. Watch the sequence, log every step, understand it.",
+      },
+      {
+        type: "text",
+        content:
+          "Part 3 — Evals. Conventional software: same input, same output, so you write tests. AI: same input, different output, so tests don't work. Evals are the replacement — a set of cases with graded outputs, run repeatedly, tracked over time.",
+      },
+      {
+        type: "text",
+        content:
+          'Every serious AI company has an eval system and most of them consider it their real moat. Knowing this puts you ahead of most people using the word "agent."',
+      },
+    ],
     glossary: [
       { term: "Structured output", definition: "Constraining the model to a defined JSON shape." },
       { term: "Schema", definition: "The definition of that shape." },
@@ -837,8 +1177,36 @@ export const sessions: Session[] = [
       },
       { title: "Chip Huyen's blog", url: "https://huyenchip.com/" },
     ],
-    doDescription:
-      "The problem: you have 100,000 documents and a context window that fits maybe 200 of them, so a user's question gets converted to an embedding, the most similar document chunks are found, only those go into the context, and the model answers using them. That's RAG — less exotic than it sounds, it's search followed by a prompt, and most of the difficulty is in the search half rather than the model half, which is why RAG systems usually underperform initially. The framing that matters: an AI product is conventional software plus model calls, retrieval, tools, data, evaluation, and interface — not just an LLM. The most common failure among non-technical founders is assuming the model is the product; in a real AI application the model calls are usually a small fraction of the code and a smaller fraction of the difficulty.",
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "The problem: you have 100,000 documents and a context window that fits maybe 200 of them. So:",
+      },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "User question\n  ↓\nConvert the question to an embedding\n  ↓\nFind the most similar document chunks\n  ↓\nPut only those in the context\n  ↓\nModel answers using them",
+      },
+      {
+        type: "text",
+        content:
+          "That's RAG. Less exotic than it sounds: it's search, followed by a prompt. Most of the difficulty is in the search half, not the model half — which is why RAG systems usually underperform initially.",
+      },
+      { type: "text", content: "The framing that matters:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "AI product = conventional software\n           + model calls\n           + retrieval\n           + tools\n           + data\n           + evaluation\n           + interface",
+      },
+      {
+        type: "text",
+        content:
+          "Not: AI product = LLM. The most common failure among non-technical founders is assuming the model is the product. In a real AI application the model calls are usually a small fraction of the code and a smaller fraction of the difficulty.",
+      },
+    ],
     glossary: [
       {
         term: "Embedding",
@@ -901,8 +1269,35 @@ export const sessions: Session[] = [
       { title: "PostHog docs", url: "https://posthog.com/docs" },
       { title: "Julia Evans' debugging zines", url: "https://wizardzines.com/" },
     ],
-    doDescription:
-      'The rule for this session: when something breaks, don\'t ask Claude Code to fix it — ask "Don\'t change any code yet. Help me identify which layer is failing, what evidence we have, and the three most likely causes," then investigate yourself, because the fix is worth less than the diagnosis. Break your app on purpose, four failures, one at a time, finding the evidence before fixing each: a wrong API URL (find the failed request in the Network panel — what status, what does the response say?), a misspelled API key (find the backend error and note where it surfaces and where it doesn\'t), a query against a column that doesn\'t exist (read the database error message properly — database errors are unusually informative), and malformed JSON returned to the frontend (watch what the frontend does — the failure appears far from its cause, which is the important lesson: where an error appears is often not where it originated). Use the same tree every time: did the UI even try (browser console)? Did a request go out, and what status came back (Network panel)? Did the backend receive it, and did the DB or API call work (server logs, DB dashboard)? What exactly came back (response body)? Almost every bug localizes by walking this in order — the skill is refusing to skip steps.',
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          'The rule for this session: when something breaks, don\'t ask Claude Code to fix it. Ask: "Don\'t change any code yet. Help me identify which layer is failing, what evidence we have, and the three most likely causes." Then investigate yourself. The fix is worth less than the diagnosis.',
+      },
+      {
+        type: "text",
+        content:
+          "Break your app on purpose. Four failures, one at a time. For each, find the evidence before fixing:\n1. Wrong API URL — find the failed request in the Network panel. What status? What does the response say?\n2. Misspelled API key — find the backend error. Note where it surfaces and where it doesn't.\n3. Query a column that doesn't exist — read the database error message properly. Database errors are unusually informative.\n4. Return malformed JSON — watch what the frontend does. Note that the failure appears far from its cause.",
+      },
+      {
+        type: "text",
+        content:
+          "That fourth one is the important lesson: where an error appears is often not where it originated.",
+      },
+      { type: "text", content: "The tree to use every time:" },
+      {
+        type: "code",
+        language: "text",
+        content:
+          "Something's wrong\n  ↓\nDid the UI even try?          → browser console\n  ↓\nDid a request go out?         → Network panel\n  ↓\nWhat status came back?        → Network panel\n  ↓\nDid the backend receive it?   → server logs\n  ↓\nDid the DB or API call work?  → server logs, DB dashboard\n  ↓\nWhat exactly came back?       → response body",
+      },
+      {
+        type: "text",
+        content:
+          "Almost every bug localizes by walking this in order. The skill is refusing to skip steps.",
+      },
+    ],
     glossary: [
       { term: "Stack trace", definition: "The chain of function calls that led to an error." },
       { term: "Console", definition: "Where browser-side errors and logs appear." },
@@ -941,8 +1336,27 @@ export const sessions: Session[] = [
       { title: "Cal.com", url: "https://github.com/calcom/cal.com" },
       { title: "Dub", url: "https://github.com/dubinc/dub" },
     ],
-    doDescription:
-      "Pick a real open-source Next.js project on GitHub — something with a few thousand stars, not a tutorial repo — and answer these without asking anyone: where does the app start, where does the UI live, where are the API routes or server functions, where is the database schema defined, what external services does it use, where do credentials get configured, and can you trace one feature end to end from the button to the database and back? You will struggle — that's the exercise; give it a full 45 minutes before asking for help. Then ask Claude Code the same questions and compare its answers to yours; where you were wrong, work out what signal you missed, because that's the actual learning. The files that tell you the most, fastest: README.md for what the maintainers thought mattered, package.json for every external thing this touches, .env.example for every service it connects to, the folder structure as the architecture in miniature, and recent commits for what's actively being worked on. Cal.com and Dub are both real, open-source, well-organized Next.js products worth reading. Do this exercise a second time in a month — the gap between attempts is a good measure of progress.",
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Pick a real open-source Next.js project on GitHub — something with a few thousand stars, not a tutorial repo. Then answer these without asking anyone:\n1. Where does the app start? What's the entry point?\n2. Where does the UI live?\n3. Where are the API routes or server functions?\n4. Where is the database schema defined?\n5. What external services does it use?\n6. Where do credentials get configured?\n7. Trace one feature end to end — from the button to the database and back.",
+      },
+      {
+        type: "text",
+        content: "You will struggle. That's the exercise. Give it a full 45 minutes before asking for help.",
+      },
+      {
+        type: "text",
+        content:
+          "Then: ask Claude Code the same questions. Compare its answers to yours. Where you were wrong, work out what signal you missed — that's the actual learning.",
+      },
+      {
+        type: "text",
+        content:
+          "The files that tell you the most, fastest:\nREADME.md — what the maintainers thought mattered\npackage.json — every dependency, i.e. every external thing this touches\n.env.example — every service it connects to\nfolder structure — usually the architecture in miniature\nrecent commits — what's actively being worked on",
+      },
+    ],
     glossary: [
       { term: "Entry point", definition: "Where execution begins." },
       { term: "Dependency", definition: "External code the project relies on." },
@@ -1008,8 +1422,28 @@ export const sessions: Session[] = [
         url: "https://dataintensive.net/",
       },
     ],
-    doDescription:
-      "Design four systems, ten minutes each: your own CRM, drawn completely from memory before looking at anything; Dropbox, working out where files live versus where metadata lives and what happens when a second device wants a file; Uber, working out where location data goes and how the system finds nearby drivers and keeps rider and driver in sync; and an AI customer support agent, working out where customer data comes from, what tools the model can call, and what requires human approval. Correctness isn't the point — decomposing a product into technical components is. Then, for scoping: estimate how long a competent engineer would take on each of adding a delete button, adding CSV export, adding a second user role, changing a primary key type on a table with data in it, switching databases, adding real-time updates, adding a full audit log, and adding a second language — write your number down first, then check your reasoning with Claude. You'll be badly wrong on at least two, usually the ones that sound simple and are structurally invasive, and that gap is what calibrates you for the moment an engineer says \"three months\" and you need to know whether that's honest, padded, or optimistic. Finish by drawing your CRM architecture from memory and working through what happens when a user loads the page and submits a company, where the data is stored physically, what the backend does that the frontend can't, why authentication is necessary, where the API key lives and why there specifically, what breaks first at 100,000 users, and what a cache, a queue, or an agent would each actually mean in this system. Discuss 14 of those 18 questions intelligently and you've hit the target.",
+    doBlocks: [
+      {
+        type: "text",
+        content:
+          "Exercise A — design four systems, 10 minutes each.\n\n1. Your own CRM. Draw it completely, from memory, before looking at anything.\n\n2. Dropbox. Where do files live? Where does metadata live? What happens when a second device wants the file? Why are those two storage systems different?\n\n3. Uber. Where does location data go? How does the system find nearby drivers? How do rider and driver stay in sync? What breaks at scale?\n\n4. An AI customer support agent. Where does customer data come from? What tools can the model call? What happens when it's uncertain? What requires human approval? What do you log?\n\nCorrectness isn't the point. Decomposing a product into technical components is.",
+      },
+      {
+        type: "text",
+        content:
+          "Exercise B — scoping and estimation. For each, estimate how long a competent engineer would take. Write your number down first, then check your reasoning with Claude and see how far off you were.\n\nAdd a \"delete company\" button\nAdd CSV export of all notes\nAdd a second user role with different permissions\nChange the primary key type on an existing table with data in it\nSwitch from Supabase to a different database\nAdd real-time updates so two users see each other's changes live\nAdd a full audit log of every change\nAdd support for a second language\n\nYou'll be badly wrong on at least two. The gap between your estimate and reality is the lesson — that's what calibrates you for the moment an engineer says \"three months\" and you need to know whether that's honest, padded, or optimistic.",
+      },
+      {
+        type: "text",
+        content:
+          "Pay attention to which ones surprised you. Usually it's the ones that sound simple (changing a primary key, adding a language) and are structurally invasive.",
+      },
+      {
+        type: "text",
+        content:
+          "The final test: draw your CRM architecture from memory, then answer:\n1. What happens when a user loads the page?\n2. What happens when they submit a company?\n3. Where is that company stored, physically?\n4. What SQL runs, roughly?\n5. What is JSON doing in this system?\n6. What does the backend do that the frontend can't?\n7. Why is authentication necessary, and what would break without it?\n8. What happens when the Analyze button is clicked, step by step?\n9. Where does the API key live and why there specifically?\n10. What does Vercel do? Supabase? GitHub? Why three separate things?\n11. What does a 500 mean, and how would you find the cause?\n12. What breaks first at 100,000 users?\n13. What would a cache help with here? What wouldn't it help with?\n14. What would a queue help with here?\n15. What would \"adding an agent\" actually mean in this system?\n16. How would you integrate a third-party service like Salesforce?\n17. How many tokens does one Analyze click cost, roughly, and what does that mean at scale?\n18. If the AI analysis started returning worse results next month, how would you know?\n\nDiscuss 14 of 18 intelligently and you've hit the target.",
+      },
+    ],
     glossary: [
       { term: "Server", definition: "A process handling requests." },
       { term: "Database", definition: "Persistent structured data." },
@@ -1057,4 +1491,21 @@ export function getTotalMinutes(): number {
     const match = session.timeEstimate.match(/\d+/);
     return total + (match ? Number(match[0]) : 0);
   }, 0);
+}
+
+export type AggregatedGlossaryTerm = GlossaryTerm & {
+  sessionNumber: number;
+  sessionTitle: string;
+};
+
+export function getAllGlossaryTerms(): AggregatedGlossaryTerm[] {
+  return sessions
+    .flatMap((session) =>
+      session.glossary.map((entry) => ({
+        ...entry,
+        sessionNumber: session.number,
+        sessionTitle: session.title,
+      })),
+    )
+    .sort((a, b) => a.term.localeCompare(b.term) || a.sessionNumber - b.sessionNumber);
 }
